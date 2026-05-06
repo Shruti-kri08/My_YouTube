@@ -82,8 +82,12 @@ const videoSchema=new mongoose.Schema({
     ref:'user'
 
   }],
+  comments:[{
+    type:mongoose.Schema.Types.ObjectId,
+    ref:'comment'
 
-  CommentsCount:{
+  }],
+ commentsCount:{
     type:Number,
     default:0
   },

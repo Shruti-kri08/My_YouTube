@@ -10,6 +10,7 @@ const fileUpload = require('express-fileupload');
 //import routes
 const userRoutes=require('./routes/user')
 const videoRoutes=require('./routes/video')
+const commentRoutes=require('./routes/comment')
 
 
 //connect with database
@@ -42,6 +43,7 @@ app.use(fileUpload(
 
 app.use('/user',userRoutes)
 app.use('/video',videoRoutes)
+app.use('/comment',commentRoutes)
 
 
 

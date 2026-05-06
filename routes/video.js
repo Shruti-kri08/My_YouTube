@@ -14,75 +14,6 @@ cloudinary.config({
     api_secret: process.env.API_SECRET
 })
 
-
-
-
-// // // get video by id
-// // Router.get('/:id',async(req,res)=>{
-// //   try
-// //   {
-// //     const video = await Video.findById(req.params.id).populate('userId','imageUrl fullName').populate('likedBy','fullName')
-// //     console.log(video)
-// //     // console.log(video.userId._id)
-// //     const videoCreator = await User.findById(video.userId._id)
-// //     video.views = video.views + 1
-// //     await video.save()
-// //     // console.log(videoCreator)
-// //     const newResponse = {
-// //       ...video._doc,
-// //       subscribersCount:videoCreator.subscribers.length
-// //     }
-
-// //     res.status(200).json({
-// //       video:newResponse
-// //     })
-
-// //   }
-// //   catch(err)
-// //   {
-// //     console.log(err)
-// //     res.status(500).json({
-// //       error:err
-// //     })
-// //   }
-// // })
-
-// // // delete video
-// // Router.delete('/:id',async(req,res)=>{
-// //   try
-// //   {
-// //     const token = req.headers.authorization.split(" ")[1]
-// //     const tokenData = await jwt.verify(token,process.env.SEC_KEY)
-// //     console.log('data',tokenData)
-
-// //     const video = await Video.findById(req.params.id)
-// //     if(video.userId != tokenData.userId)
-// //     {
-// //       return res.status(500).json({
-// //         error:'invalide user'
-// //       })
-// //     }
-
-// //     await cloudinary.uploader.destroy(video.thumbnailId)
-// //     await cloudinary.uploader.destroy(video.videoId,{
-// //       resource_type:'video'
-// //     })
-// //     await Video.findByIdAndDelete(req.params.id)
-
-// //     res.status(200).json({
-// //       msg:'video delete hoi giyaaa'
-// //     })
-// //   }
-// //   catch(err)
-// //   {
-// //     console.log(err)
-// //     res.status(500).json({
-// //       error:err
-// //     })
-// //   }
-// // })
-
-
 //video upload routes
 Router.post('/upload', async (req, res) => {
     try {
@@ -121,7 +52,7 @@ Router.post('/upload', async (req, res) => {
 //get all video
 Router.get('/all-video', async (req, res) => {
     try {
-        const allvideo = await Video.find().select("_id title likesCount dislikesCount thumbnailUrl userId publishedAt").populate('userId', "fullname imageUrl ")
+        const allvideo = await Video.find().select("_id title likesCount dislikesCount comments commentsCount thumbnailUrl userId publishedAt").populate('userId', "fullname imageUrl ").populate('comments','text' )
 
         res.status(200).json({
             videos: allvideo
@@ -137,7 +68,7 @@ Router.get('/all-video', async (req, res) => {
 })
 
 //by video id
-Router.post('/byId/:id', async (req, res) => {
+Router.get('/byId/:id', async (req, res) => {
     try {
         const video = await Video.findById(req.params.id)
 
@@ -165,7 +96,7 @@ Router.post('/byId/:id', async (req, res) => {
 })
 
 //get video by userId
-Router.post('/userId/:id', async (req, res) => {
+Router.get('/byUserId/:id', async (req, res) => {
     try {
         const videos = await Video.find({ userId: req.params.id })
 
@@ -270,37 +201,111 @@ Router.post('/dislike/:videoId', async (req, res) => {
 
 })
 
-Router.post('/upload-comment/:videoId', async (req, res) => {
-    try {
-        const token = req.headers.authorization.split(" ")[1]
-        const tokenData = jwt.verify(token, process.env.SEC_KEY)
-        const video=await Video.findById(req.params.videoId)
+// Router.post('/upload-comment/:videoId', async (req, res) => {
+//     try {
+//         const token = req.headers.authorization.split(" ")[1]
+//         const tokenData = jwt.verify(token, process.env.SEC_KEY)
+//         const video=await Video.findById(req.params.videoId)
 
-         if (video.length == 0) {
-            return res.status(500).json({
-                msg: "video not found!"
-            })
-        }
+//          if (!video) {
+//             return res.status(500).json({
+//                 msg: "video not found!"
+//             })
+//         }
 
-        const comment=new Comment({
-            text:req.body.text,
-            userId:tokenData.userId
-        })
-        const result =await comment.save()
-        res.status(200).json({
-           comment:result
-        })
+//         const comment=new Comment({
+//             text:req.body.text,
+//             userId:tokenData.userId,
+//             videoId:req.params.videoId
+//         })
+//         video.comments.push(comment._id)
+//         video.commentsCount+=1
+//         await video.save()
+//         const result =await comment.save()
+        
+//         res.status(200).json({
+//            comment:result
+//         })
 
-    }
-    catch (err) {
-        console.log(err);
+//     }
+//     catch (err) {
+//         console.log(err);
 
-        res.status(500).json({
-            error: err
-        })
-    }
+//         res.status(500).json({
+//             error: err
+//         })
+//     }
+// })
 
 
-})
+// Router.post('/comment-delete/:id',async(req,res)=>{
+// try{
+//         const token = req.headers.authorization.split(" ")[1]
+//         const tokenData = jwt.verify(token, process.env.SEC_KEY)
+//         const comment=await Comment.findById(req.params.id)
+//         if (!comment) {
+//             return res.status(404).json({
+//                 msg: "comment not found!"
+//             })
+//         }
+
+//         const video=await Video.findById(comment.vedioId)
+//         if(tokenData.userId!==video.userId || tokenData.userId!==comment.userId){
+//             return res.status(500).json({
+//             error:'invalid user'
+//         })
+//         }
+
+//         const deleteComment=await Comment.findByIdAndDelete(req.params.id)
+//         video.comments.pop(id)
+//         commentsCount-=1
+        
+
+//  res.status(200).json({
+//             msg: "comment deleted successfully",
+//             comment: deleteComment
+//         })
+// }   
+// catch(err) {
+//      console.log(err);
+//         res.status(500).json({
+//             error: err
+//       })
+// }
+// })
+
+
+// // reply
+// Router.post('/reply/:commentId',async(req,res)=>{
+//     try
+//     {
+//          const token = req.headers.authorization.split(" ")[1]
+//          const tokenData = await jwt.verify(token,process.env.SEC_KEY)
+
+//          const comment = await Comment.findById(req.params.commentId)
+//          console.log(comment)
+
+//          const newReply = {
+//             replyText:req.body.replyText,
+//             userId:tokenData.userId
+//          }
+
+//          comment.reply.push(newReply)
+//          await comment.save()
+//          res.status(200).json({
+//             comment:comment
+//          })
+
+//     }
+//     catch(err)
+//     {
+//         console.log(err)
+//         res.status(500).json({
+//             error:err
+//         })
+//     }
+// })
+
+
 
 module.exports = Router
