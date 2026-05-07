@@ -92,7 +92,6 @@ Router.post('/login', async (req, res) => {
             { expiresIn: '4d' }
         )
 
-        console.log("token : ", token);
         res.status(200).json({ token: token })
 
         const tokenData = jwt.verify(token, process.env.SEC_KEY)

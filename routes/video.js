@@ -21,7 +21,6 @@ Router.post('/upload', async (req, res) => {
         const tokenData = jwt.verify(token, process.env.SEC_KEY)
         const uploadedvideo = await cloudinary.uploader.upload(req.files.video.tempFilePath, { resource_type: "video", folder: "MY_Youtube_video" })
         const uploadedThumbnail = await cloudinary.uploader.upload(req.files.thumbnail.tempFilePath, { resource_type: "image", folder: "MY_Youtube_Thumbnail" })
-        console.log(uploadedThumbnail, uploadedvideo);
 
         const newvideo = new Video({
             userId: tokenData.userId,
