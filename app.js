@@ -1,10 +1,11 @@
 require('dotenv').config();
 const express = require('express')
 const app = express()
+app.set('trust proxy', 1)
 const mongoose = require('mongoose')
 const bodyParser=require('body-parser');
 const fileUpload = require('express-fileupload');
-
+const rateLimit = require("express-rate-limit");
 
 
 //import routes
@@ -30,7 +31,9 @@ const connectWithDatabase = async () => {
 connectWithDatabase()
 
 app.use(bodyParser.json())
-app.use(bodyParser.urlencoded())
+app.use(bodyParser.urlencoded({
+    extended:true
+}))
 app.use(fileUpload(
     {
     
@@ -39,7 +42,6 @@ app.use(fileUpload(
 
     }
 ))
-
 
 app.use('/user',userRoutes)
 app.use('/video',videoRoutes)

@@ -5,6 +5,19 @@ const mongoose = require('mongoose')
 const User = require('../models/User')
 const jwt = require('jsonwebtoken')
 const bcrypt = require('bcrypt')
+const rateLimit = require("express-rate-limit");
+
+// Define rate limiting rules
+const limiter = rateLimit({
+windowMs: 15 * 60 * 1000, // 15 minutes
+max: 3, // Limit each IP to 100 requests per window
+message: "Too many requests from this IP, please try again later.",
+standardHeaders: true, // Include rate limit info in response headers
+legacyHeaders: false, // Disable `X-RateLimit-*` headers
+});
+
+
+
 const cloudinary = require('cloudinary').v2
 cloudinary.config({
     cloud_name:  process.env.CLOUD_NAME,
@@ -66,7 +79,7 @@ Router.post('/signup', async (req, res) => {
     }
 })
 
-Router.post('/login', async (req, res) => {
+Router.post('/login',limiter, async (req, res) => {
     try {
 
 
