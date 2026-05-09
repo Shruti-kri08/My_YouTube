@@ -114,5 +114,19 @@ Router.post('/reply/:commentId',async(req,res)=>{
     }
 })
 
+//like and unlike api 
+Router.post('/likeAndDislike',async(req,res)=>{
+    try{
+
+    }
+    catch(err){
+        console.log(err);
+        res.status(500).json({
+            error:err
+        })
+        
+    }
+})
+
 
 module.exports = Router
